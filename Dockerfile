@@ -1,5 +1,11 @@
 FROM node:18-alpine AS builder
 
+RUN apk add --no-cache --virtual .health-check curl \
+	&& apk add --no-cache --virtual .build-deps git build-base g++ py3-pip \
+	&& apk add --no-cache --virtual .npm-deps cairo-dev libjpeg-turbo-dev pango-dev
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 WORKDIR /app
 
 COPY . .
@@ -11,6 +17,8 @@ RUN npm run build
 RUN npm prune --production
 
 FROM node:18-alpine AS runner
+
+RUN apk add --no-cache --virtual cairo-dev libjpeg-turbo pango
 
 WORKDIR /app
 
